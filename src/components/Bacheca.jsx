@@ -34,7 +34,11 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
         },
         (payload) => {
           if (payload.eventType === 'INSERT') {
-            setElements(prev => [...prev, payload.new])
+            // Check if element already exists (to avoid duplicates from optimistic updates)
+            setElements(prev => {
+              const exists = prev.some(el => el.id === payload.new.id)
+              return exists ? prev : [...prev, payload.new]
+            })
           } else if (payload.eventType === 'UPDATE') {
             setElements(prev => prev.map(el => 
               el.id === payload.new.id ? payload.new : el
@@ -111,11 +115,18 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
     }
 
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('board_elements')
         .insert([newElement])
+        .select()
+        .single()
       
       if (error) throw error
+      
+      // Optimistically add to UI (real-time will also add it, but this is faster)
+      if (data) {
+        setElements(prev => [...prev, data])
+      }
     } catch (error) {
       console.error('Error adding element:', error)
       alert('Errore nell\'aggiunta dell\'elemento')
