@@ -282,25 +282,21 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
   }
 
   const handleResetBoard = async () => {
-    if (confirm('Sei sicuro di voler eliminare tutti gli elementi creati dai corsisti?')) {
+    if (confirm('Sei sicuro di voler eliminare TUTTI gli elementi dalla bacheca?')) {
       try {
-        console.log('🔄 Resetting board - deleting participant elements')
+        console.log('🔄 Resetting board - deleting ALL elements')
         console.log('Current elements:', elements.map(el => ({ id: el.id, type: el.type, author: el.author })))
+        console.log(`Deleting ${elements.length} total elements`)
         
-        // Get list of elements to delete first
-        const elementsToDelete = elements.filter(el => el.author !== 'formatore')
-        console.log(`Found ${elementsToDelete.length} participant elements to delete`)
-        console.log('Elements to delete:', elementsToDelete.map(el => ({ id: el.id, author: el.author })))
-        
+        // Delete ALL elements from this board
         const { error } = await supabase
           .from('board_elements')
           .delete()
           .eq('board_id', board.id)
-          .neq('author', 'formatore')
         
         if (error) throw error
         
-        console.log('✅ Database delete successful')
+        console.log('✅ Database delete successful - all elements removed')
         // Real-time DELETE events should handle UI updates
         
       } catch (error) {
