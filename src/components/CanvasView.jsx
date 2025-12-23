@@ -12,10 +12,15 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
   const transformRef = useRef(null)
 
   // Check if user can interact
-  const canInteract = isInstructor || !board.config.isLocked
+  const canInteract = isInstructor || !board?.config?.isLocked
   
   // Disable panning when in drawing mode
   const isPanningDisabled = drawingState?.isDrawing || false
+
+  // Safety check
+  if (!board) {
+    return <div className="w-full h-full flex items-center justify-center">Caricamento...</div>
+  }
 
   // Reset zoom
   const handleResetZoom = () => {
@@ -77,7 +82,7 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
       </div>
 
       {/* Locked Banner */}
-      {board.config.isLocked && !isInstructor && (
+      {board?.config?.isLocked && !isInstructor && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 bg-red-100 text-red-700 px-4 py-2 rounded-lg shadow-md text-sm font-medium">
           🔒 Bacheca bloccata - Solo visualizzazione
         </div>
@@ -116,14 +121,14 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
 
             {/* Elements */}
             <div className="relative w-full h-full">
-              {board.elements.map(renderElement)}
+              {(board.elements || []).map(renderElement)}
             </div>
 
             {/* Drawing Layer */}
             <DrawingCanvas
               board={board}
               isInstructor={isInstructor}
-              canDraw={board.config.allowDrawing}
+              canDraw={board?.config?.allowDrawing || false}
               drawingState={drawingState}
               onUpdateDrawing={onUpdateDrawing}
             />
