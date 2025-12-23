@@ -96,6 +96,8 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
         maxScale={2}
         limitToBounds={false}
         centerOnInit={true}
+        initialPositionX={0}
+        initialPositionY={0}
         wheel={{ step: 0.1, disabled: isPanningDisabled }}
         doubleClick={{ disabled: true }}
         panning={{ 
@@ -105,8 +107,8 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
         }}
       >
         <TransformComponent
-          wrapperClass="w-full h-full"
-          contentClass="flex items-center justify-center"
+          wrapperClass="w-full h-full flex items-center justify-center"
+          contentClass=""
         >
           {/* Canvas Area */}
           <div className="relative bg-white shadow-2xl" style={{ width: '4000px', height: '4000px' }}>
