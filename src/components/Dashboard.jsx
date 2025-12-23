@@ -2,7 +2,7 @@ import { Plus, Trash2, ExternalLink, Users, LogOut, Calendar, Edit2, Check } fro
 import { QRCodeSVG } from 'qrcode.react'
 import { useState } from 'react'
 
-function Dashboard({ boards, onCreateBoard, onDeleteBoard, onUpdateBoard, onOpenBoard, onLogout }) {
+function Dashboard({ boards = [], onCreateBoard, onDeleteBoard, onUpdateBoard, onOpenBoard, onLogout }) {
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [editingTitle, setEditingTitle] = useState(null)
   const [editTitle, setEditTitle] = useState('')
@@ -85,7 +85,7 @@ function Dashboard({ boards, onCreateBoard, onDeleteBoard, onUpdateBoard, onOpen
         </div>
 
         {/* Boards Grid */}
-        {boards.length === 0 ? (
+        {!boards || boards.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-gray-500 text-lg">Nessuna bacheca creata</p>
             <p className="text-gray-400 text-sm mt-2">Clicca su "Nuova Bacheca" per iniziare</p>

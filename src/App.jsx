@@ -12,6 +12,7 @@ function App() {
   const [participantNickname, setParticipantNickname] = useState('')
   const [boards, setBoards] = useState([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   // Load boards from Supabase on mount
   useEffect(() => {
@@ -21,6 +22,7 @@ function App() {
   const loadBoards = async () => {
     try {
       setLoading(true)
+      setError(null)
       const { data, error } = await supabase
         .from('boards')
         .select('*')
@@ -38,7 +40,8 @@ function App() {
       setBoards(boards)
     } catch (error) {
       console.error('Error loading boards:', error)
-      alert('Errore nel caricamento delle bacheche')
+      setError('Errore nel caricamento delle bacheche: ' + error.message)
+      setBoards([])
     } finally {
       setLoading(false)
     }
@@ -185,6 +188,18 @@ function App() {
       
       {currentView === 'dashboard' && (
         <>
+          {error && (
+            <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 max-w-md">
+              <p className="font-bold">Errore</p>
+              <p className="text-sm">{error}</p>
+              <button 
+                onClick={() => setError(null)}
+                className="absolute top-2 right-2 text-red-700 hover:text-red-900"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           {loading && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white rounded-lg p-6">
