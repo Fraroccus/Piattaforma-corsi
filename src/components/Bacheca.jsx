@@ -285,10 +285,12 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
     if (confirm('Sei sicuro di voler eliminare tutti gli elementi creati dai corsisti?')) {
       try {
         console.log('🔄 Resetting board - deleting participant elements')
+        console.log('Current elements:', elements.map(el => ({ id: el.id, type: el.type, author: el.author })))
         
         // Get list of elements to delete first
         const elementsToDelete = elements.filter(el => el.author !== 'formatore')
         console.log(`Found ${elementsToDelete.length} participant elements to delete`)
+        console.log('Elements to delete:', elementsToDelete.map(el => ({ id: el.id, author: el.author })))
         
         const { error } = await supabase
           .from('board_elements')
