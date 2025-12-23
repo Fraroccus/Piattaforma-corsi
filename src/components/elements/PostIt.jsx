@@ -11,7 +11,8 @@ const COLORS = {
 }
 
 function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelete }) {
-  const [isEditing, setIsEditing] = useState(!element.data.text)
+  // Only start in editing mode if created by current user AND text is empty
+  const [isEditing, setIsEditing] = useState(canEdit && !element.data.text)
   const [text, setText] = useState(element.data.text || '')
   const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
@@ -21,9 +22,8 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
     setPosition(element.position || { x: 0, y: 0 })
   }, [element.position?.x, element.position?.y])
 
-  // Sync text when element updates from real-time events - always update
+  // Sync text when element updates from real-time events
   useEffect(() => {
-    console.log('PostIt useEffect triggered for element:', element.id, 'isEditing:', isEditing, 'text:', element.data?.text)
     if (!isEditing) {
       setText(element.data?.text || '')
     }
