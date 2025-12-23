@@ -217,15 +217,6 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
                   className="w-5 h-5 text-primary-600 rounded"
                 />
               </label>
-              <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm">Disegno</span>
-                <input
-                  type="checkbox"
-                  checked={board.config.allowDrawing}
-                  onChange={(e) => onUpdateConfig({ allowDrawing: e.target.checked })}
-                  className="w-5 h-5 text-primary-600 rounded"
-                />
-              </label>
             </div>
           )}
         </div>
