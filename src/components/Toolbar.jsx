@@ -257,6 +257,19 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
                   >
                     Copia link
                   </button>
+                  
+                  {/* Link text box */}
+                  <div className="w-full">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Link bacheca</label>
+                    <input
+                      type="text"
+                      value={getBoardLink()}
+                      readOnly
+                      onClick={(e) => e.target.select()}
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-xs bg-gray-50 cursor-text"
+                    />
+                  </div>
+                  
                   <button
                     onClick={downloadQR}
                     className="w-full border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded text-sm font-medium"
