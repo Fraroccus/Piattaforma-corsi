@@ -18,17 +18,13 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
 
   // Sync position when element updates from real-time events
   useEffect(() => {
-    if (element.position) {
-      setPosition(element.position)
-    }
-  }, [element.position])
+    setPosition(element.position || { x: 0, y: 0 })
+  }, [element.position?.x, element.position?.y])
 
   // Sync text when element updates from real-time events
   useEffect(() => {
-    if (element.data.text) {
-      setText(element.data.text)
-    }
-  }, [element.data.text])
+    setText(element.data?.text || '')
+  }, [element.data?.text])
 
   const colorScheme = COLORS[element.data.color] || COLORS.yellow
 

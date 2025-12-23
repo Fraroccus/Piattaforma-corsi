@@ -33,17 +33,25 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
           filter: `board_id=eq.${board.id}`
         },
         (payload) => {
+          console.log('🔄 Real-time event:', payload.eventType, 'element:', payload.new?.id || payload.old?.id)
           if (payload.eventType === 'INSERT') {
             // Check if element already exists (to avoid duplicates from optimistic updates)
             setElements(prev => {
               const exists = prev.some(el => el.id === payload.new.id)
-              return exists ? prev : [...prev, payload.new]
+              if (exists) {
+                console.log('Element already exists, skipping INSERT')
+                return prev
+              }
+              console.log('Adding new element from real-time')
+              return [...prev, payload.new]
             })
           } else if (payload.eventType === 'UPDATE') {
+            console.log('Applying UPDATE from real-time:', payload.new)
             setElements(prev => prev.map(el => 
               el.id === payload.new.id ? payload.new : el
             ))
           } else if (payload.eventType === 'DELETE') {
+            console.log('Applying DELETE from real-time')
             setElements(prev => prev.filter(el => el.id !== payload.old.id))
           }
         }
@@ -172,10 +180,15 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
 
   const handleUpdateElement = async (elementId, updates) => {
     try {
+      console.log('📝 Update element:', elementId, 'updates:', updates)
       // Optimistically update UI
-      setElements(prev => prev.map(el =>
-        el.id === elementId ? { ...el, ...updates } : el
-      ))
+      setElements(prev => {
+        const updated = prev.map(el =>
+          el.id === elementId ? { ...el, ...updates } : el
+        )
+        console.log('Optimistic update applied locally')
+        return updated
+      })
       
       const { error } = await supabase
         .from('board_elements')
@@ -183,10 +196,12 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
         .eq('id', elementId)
       
       if (error) {
+        console.error('Database update failed:', error)
         // Revert on error by reloading
         await loadElements()
         throw error
       }
+      console.log('✅ Database update successful')
     } catch (error) {
       console.error('Error updating element:', error)
     }
@@ -194,8 +209,13 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
 
   const handleDeleteElement = async (elementId) => {
     try {
+      console.log('🗑️ Delete element:', elementId)
       // Optimistically remove from UI
-      setElements(prev => prev.filter(el => el.id !== elementId))
+      setElements(prev => {
+        const filtered = prev.filter(el => el.id !== elementId)
+        console.log('Optimistic delete applied locally, elements left:', filtered.length)
+        return filtered
+      })
       
       const { error } = await supabase
         .from('board_elements')
@@ -203,10 +223,12 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
         .eq('id', elementId)
       
       if (error) {
+        console.error('Database delete failed:', error)
         // Revert on error by reloading
         await loadElements()
         throw error
       }
+      console.log('✅ Database delete successful')
     } catch (error) {
       console.error('Error deleting element:', error)
       alert('Errore nell\'eliminazione dell\'elemento')
