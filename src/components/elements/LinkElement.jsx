@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Trash2, Edit2, ExternalLink, Link as LinkIcon } from 'lucide-react'
 import Draggable from 'react-draggable'
 
@@ -9,6 +9,19 @@ function LinkElement({ element, isInstructor, canEdit, canInteract, onUpdate, on
   const [showPreview, setShowPreview] = useState(false)
   const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
+
+  // Sync position when element updates from real-time events
+  useEffect(() => {
+    if (element.position) {
+      setPosition(element.position)
+    }
+  }, [element.position])
+
+  // Sync data when element updates from real-time events
+  useEffect(() => {
+    setUrl(element.data.url || '')
+    setTitle(element.data.title || '')
+  }, [element.data.url, element.data.title])
 
   const handleDragStop = (e, data) => {
     if (isInstructor) {

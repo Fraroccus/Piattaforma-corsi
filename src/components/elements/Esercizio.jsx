@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Trash2, Edit2, Send } from 'lucide-react'
 import Draggable from 'react-draggable'
 
@@ -8,6 +8,18 @@ function Esercizio({ element, isInstructor, canEdit, canInteract, participantNic
   const [responseText, setResponseText] = useState('')
   const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
+
+  // Sync position when element updates from real-time events
+  useEffect(() => {
+    if (element.position) {
+      setPosition(element.position)
+    }
+  }, [element.position])
+
+  // Sync data when element updates from real-time events
+  useEffect(() => {
+    setQuestion(element.data.question || '')
+  }, [element.data.question])
 
   const handleDragStop = (e, data) => {
     if (isInstructor) {

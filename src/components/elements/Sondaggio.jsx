@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Trash2, Edit2, Check, Plus, X } from 'lucide-react'
 import Draggable from 'react-draggable'
 
@@ -9,6 +9,20 @@ function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNic
   const [multipleChoice, setMultipleChoice] = useState(element.data.multipleChoice || false)
   const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
+
+  // Sync position when element updates from real-time events
+  useEffect(() => {
+    if (element.position) {
+      setPosition(element.position)
+    }
+  }, [element.position])
+
+  // Sync data when element updates from real-time events
+  useEffect(() => {
+    setQuestion(element.data.question || '')
+    setOptions(element.data.options || [])
+    setMultipleChoice(element.data.multipleChoice || false)
+  }, [element.data])
 
   const handleDragStop = (e, data) => {
     if (isInstructor) {
