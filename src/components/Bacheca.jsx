@@ -92,9 +92,15 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
           filter: `id=eq.${board.id}`
         },
         (payload) => {
+          console.log('📐 Board UPDATE event received:', payload)
+          console.log('Old drawing_data:', board.drawingData === null ? 'null' : 'exists')
+          console.log('New drawing_data:', payload.new.drawing_data === null ? 'null' : 'exists')
           // Update board drawing data when it changes
           if (payload.new.drawing_data !== board.drawingData) {
+            console.log('✅ Drawing data changed, updating board')
             onUpdateBoard({ drawingData: payload.new.drawing_data })
+          } else {
+            console.log('⚠️ Drawing data unchanged, skipping update')
           }
         }
       )
