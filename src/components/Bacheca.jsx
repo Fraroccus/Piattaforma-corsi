@@ -65,7 +65,16 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
           }
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('Subscription status:', status)
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Successfully subscribed to board:', board.id)
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Channel subscription error')
+        } else if (status === 'TIMED_OUT') {
+          console.error('❌ Channel subscription timed out')
+        }
+      })
 
     return () => {
       supabase.removeChannel(channel)
