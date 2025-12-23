@@ -91,13 +91,11 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
       {/* Canvas with Zoom/Pan */}
       <TransformWrapper
         ref={transformRef}
-        initialScale={0.2}
+        initialScale={0.5}
         minScale={0.1}
         maxScale={2}
         limitToBounds={false}
         centerOnInit={true}
-        initialPositionX={0}
-        initialPositionY={0}
         wheel={{ step: 0.1, disabled: isPanningDisabled }}
         doubleClick={{ disabled: true }}
         panning={{ 

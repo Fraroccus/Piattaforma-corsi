@@ -47,9 +47,17 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
             })
           } else if (payload.eventType === 'UPDATE') {
             console.log('Applying UPDATE from real-time:', payload.new)
-            setElements(prev => prev.map(el => 
-              el.id === payload.new.id ? payload.new : el
-            ))
+            setElements(prev => prev.map(el => {
+              if (el.id === payload.new.id) {
+                // Create new object with new references for nested objects
+                return {
+                  ...payload.new,
+                  data: { ...payload.new.data },
+                  position: { ...payload.new.position }
+                }
+              }
+              return el
+            }))
           } else if (payload.eventType === 'DELETE') {
             console.log('Applying DELETE from real-time')
             setElements(prev => prev.filter(el => el.id !== payload.old.id))
@@ -181,11 +189,22 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
   const handleUpdateElement = async (elementId, updates) => {
     try {
       console.log('📝 Update element:', elementId, 'updates:', updates)
-      // Optimistically update UI
+      // Optimistically update UI - create completely new objects to force re-render
       setElements(prev => {
-        const updated = prev.map(el =>
-          el.id === elementId ? { ...el, ...updates } : el
-        )
+        const updated = prev.map(el => {
+          if (el.id === elementId) {
+            // Deep merge to create new object references
+            return {
+              ...el,
+              ...updates,
+              // If updating data, ensure it's a new object
+              data: updates.data ? { ...el.data, ...updates.data } : el.data,
+              // If updating position, ensure it's a new object
+              position: updates.position ? { ...updates.position } : el.position
+            }
+          }
+          return el
+        })
         console.log('Optimistic update applied locally')
         return updated
       })
