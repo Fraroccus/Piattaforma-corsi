@@ -93,14 +93,17 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
         },
         (payload) => {
           console.log('📐 Board UPDATE event received:', payload)
-          console.log('Old drawing_data:', board.drawingData === null ? 'null' : 'exists')
-          console.log('New drawing_data:', payload.new.drawing_data === null ? 'null' : 'exists')
-          // Update board drawing data when it changes
+          
+          // Check for drawing data changes
           if (payload.new.drawing_data !== board.drawingData) {
             console.log('✅ Drawing data changed, updating board')
             onUpdateBoard({ drawingData: payload.new.drawing_data })
-          } else {
-            console.log('⚠️ Drawing data unchanged, skipping update')
+          }
+          
+          // Check for config changes
+          if (JSON.stringify(payload.new.config) !== JSON.stringify(board.config)) {
+            console.log('✅ Config changed, updating permissions')
+            onUpdateBoard({ config: payload.new.config })
           }
         }
       )
