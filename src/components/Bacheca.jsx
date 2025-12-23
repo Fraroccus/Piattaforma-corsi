@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { ArrowLeft, Plus } from 'lucide-react'
 import CanvasView from './CanvasView'
 import Toolbar from './Toolbar'
@@ -14,6 +14,16 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
     color: '#000000',
     thickness: 8
   })
+  
+  // Use refs to track the latest board config without triggering re-subscriptions
+  const boardConfigRef = useRef(board.config)
+  const boardDrawingDataRef = useRef(board.drawingData)
+  
+  // Update refs when board changes
+  useEffect(() => {
+    boardConfigRef.current = board.config
+    boardDrawingDataRef.current = board.drawingData
+  }, [board.config, board.drawingData])
 
   // Load elements from Supabase on mount and set up real-time subscription
   useEffect(() => {
@@ -94,14 +104,14 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
         (payload) => {
           console.log('📐 Board UPDATE event received:', payload)
           
-          // Check for drawing data changes
-          if (payload.new.drawing_data !== board.drawingData) {
+          // Check for drawing data changes using ref
+          if (payload.new.drawing_data !== boardDrawingDataRef.current) {
             console.log('✅ Drawing data changed, updating board')
             onUpdateBoard({ drawingData: payload.new.drawing_data })
           }
           
-          // Check for config changes
-          if (JSON.stringify(payload.new.config) !== JSON.stringify(board.config)) {
+          // Check for config changes using ref
+          if (JSON.stringify(payload.new.config) !== JSON.stringify(boardConfigRef.current)) {
             console.log('✅ Config changed, updating permissions')
             onUpdateBoard({ config: payload.new.config })
           }
