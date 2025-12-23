@@ -247,13 +247,7 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
 
   const handleDeleteElement = async (elementId) => {
     try {
-      console.log('🗑️ Delete element:', elementId)
-      // Optimistically remove from UI
-      setElements(prev => {
-        const filtered = prev.filter(el => el.id !== elementId)
-        console.log('Optimistic delete applied locally, elements left:', filtered.length)
-        return filtered
-      })
+      console.log('🗑️ Deleting element:', elementId)
       
       const { error } = await supabase
         .from('board_elements')
@@ -261,12 +255,14 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
         .eq('id', elementId)
       
       if (error) {
-        console.error('Database delete failed:', error)
-        // Revert on error by reloading
-        await loadElements()
+        console.error('❌ Database delete failed:', error)
         throw error
       }
+      
       console.log('✅ Database delete successful')
+      // Don't do optimistic delete - let real-time handle it
+      // This ensures both instructor and participant get the same DELETE event
+      
     } catch (error) {
       console.error('Error deleting element:', error)
       alert('Errore nell\'eliminazione dell\'elemento')
