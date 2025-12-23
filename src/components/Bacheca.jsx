@@ -153,12 +153,21 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
 
   const handleUpdateElement = async (elementId, updates) => {
     try {
+      // Optimistically update UI
+      setElements(prev => prev.map(el =>
+        el.id === elementId ? { ...el, ...updates } : el
+      ))
+      
       const { error } = await supabase
         .from('board_elements')
         .update(updates)
         .eq('id', elementId)
       
-      if (error) throw error
+      if (error) {
+        // Revert on error by reloading
+        await loadElements()
+        throw error
+      }
     } catch (error) {
       console.error('Error updating element:', error)
     }
@@ -166,14 +175,22 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
 
   const handleDeleteElement = async (elementId) => {
     try {
+      // Optimistically remove from UI
+      setElements(prev => prev.filter(el => el.id !== elementId))
+      
       const { error } = await supabase
         .from('board_elements')
         .delete()
         .eq('id', elementId)
       
-      if (error) throw error
+      if (error) {
+        // Revert on error by reloading
+        await loadElements()
+        throw error
+      }
     } catch (error) {
       console.error('Error deleting element:', error)
+      alert('Errore nell\'eliminazione dell\'elemento')
     }
   }
 
