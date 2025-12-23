@@ -1,8 +1,6 @@
-import { useState } from 'react'
-import { Plus, StickyNote, BarChart3, FileQuestion, Link as LinkIcon, X } from 'lucide-react'
+import { StickyNote, BarChart3, FileQuestion, Link as LinkIcon } from 'lucide-react'
 
 function ParticipantToolbar({ board, onAddElement }) {
-  const [isOpen, setIsOpen] = useState(false)
 
   // Check which permissions are enabled
   const hasAnyPermission = 
@@ -18,77 +16,61 @@ function ParticipantToolbar({ board, onAddElement }) {
 
   const handleAdd = (type) => {
     onAddElement(type)
-    setIsOpen(false)
   }
 
   return (
-    <div className="absolute bottom-6 left-6 z-20">
-      {/* Main Button */}
-      {!isOpen ? (
+    <div className="flex-shrink-0 bg-white border-l shadow-lg w-16 flex flex-col items-center py-4 gap-4">
+      {/* Add Element Buttons */}
+      {board.config.allowPostIt && (
         <button
-          onClick={() => setIsOpen(true)}
-          className="bg-primary-600 hover:bg-primary-700 text-white p-4 rounded-full shadow-lg flex items-center gap-2 transition-all"
-          title="Aggiungi elemento"
+          onClick={() => handleAdd('postit')}
+          className="p-3 hover:bg-gray-100 rounded-lg transition-colors group relative"
+          title="Aggiungi Post-it"
         >
-          <Plus size={24} />
-          <span className="font-medium">Aggiungi</span>
+          <StickyNote size={24} className="text-yellow-600" />
+          <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Post-it
+          </span>
         </button>
-      ) : (
-        <div className="bg-white rounded-lg shadow-xl border-2 border-primary-200 p-3 min-w-48">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-3 pb-2 border-b">
-            <span className="font-semibold text-gray-900">Aggiungi</span>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1 hover:bg-gray-100 rounded"
-            >
-              <X size={16} />
-            </button>
-          </div>
-
-          {/* Options */}
-          <div className="space-y-1">
-            {board.config.allowPostIt && (
-              <button
-                onClick={() => handleAdd('postit')}
-                className="w-full p-2 flex items-center gap-2 hover:bg-gray-50 rounded text-sm text-left"
-              >
-                <StickyNote size={16} className="text-yellow-600" />
-                Post-it
-              </button>
-            )}
-            
-            {board.config.allowSondaggio && (
-              <button
-                onClick={() => handleAdd('sondaggio')}
-                className="w-full p-2 flex items-center gap-2 hover:bg-gray-50 rounded text-sm text-left"
-              >
-                <BarChart3 size={16} className="text-primary-600" />
-                Sondaggio
-              </button>
-            )}
-            
-            {board.config.allowEsercizio && (
-              <button
-                onClick={() => handleAdd('esercizio')}
-                className="w-full p-2 flex items-center gap-2 hover:bg-gray-50 rounded text-sm text-left"
-              >
-                <FileQuestion size={16} className="text-green-600" />
-                Esercizio
-              </button>
-            )}
-            
-            {board.config.allowLink && (
-              <button
-                onClick={() => handleAdd('link')}
-                className="w-full p-2 flex items-center gap-2 hover:bg-gray-50 rounded text-sm text-left"
-              >
-                <LinkIcon size={16} className="text-purple-600" />
-                Link
-              </button>
-            )}
-          </div>
-        </div>
+      )}
+      
+      {board.config.allowSondaggio && (
+        <button
+          onClick={() => handleAdd('sondaggio')}
+          className="p-3 hover:bg-gray-100 rounded-lg transition-colors group relative"
+          title="Aggiungi Sondaggio"
+        >
+          <BarChart3 size={24} className="text-primary-600" />
+          <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Sondaggio
+          </span>
+        </button>
+      )}
+      
+      {board.config.allowEsercizio && (
+        <button
+          onClick={() => handleAdd('esercizio')}
+          className="p-3 hover:bg-gray-100 rounded-lg transition-colors group relative"
+          title="Aggiungi Esercizio"
+        >
+          <FileQuestion size={24} className="text-green-600" />
+          <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Esercizio
+          </span>
+        </button>
+      )}
+      
+      {board.config.allowLink && (
+        <button
+          onClick={() => handleAdd('link')}
+          className="p-3 hover:bg-gray-100 rounded-lg transition-colors group relative"
+          title="Aggiungi Link"
+        >
+          <LinkIcon size={24} className="text-purple-600" />
+          <span className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Link
+          </span>
+        </button>
       )}
     </div>
   )
