@@ -3,7 +3,8 @@ import { Trash2, Edit2, Send } from 'lucide-react'
 import Draggable from 'react-draggable'
 
 function Esercizio({ element, isInstructor, canEdit, canInteract, participantNickname, onUpdate, onDelete }) {
-  const [isEditing, setIsEditing] = useState(!element.data.question || element.data.question === 'Nuova domanda')
+  // Only start in editing mode if created by current user AND question is empty/default
+  const [isEditing, setIsEditing] = useState(canEdit && (!element.data.question || element.data.question === 'Nuova domanda'))
   const [question, setQuestion] = useState(element.data.question || '')
   const [responseText, setResponseText] = useState('')
   const [position, setPosition] = useState(element.position || { x: 0, y: 0 })

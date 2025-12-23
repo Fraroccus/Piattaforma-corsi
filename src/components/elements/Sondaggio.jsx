@@ -3,7 +3,8 @@ import { Trash2, Edit2, Check, Plus, X } from 'lucide-react'
 import Draggable from 'react-draggable'
 
 function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNickname, onUpdate, onDelete }) {
-  const [isEditing, setIsEditing] = useState(!element.data.question || element.data.question === 'Nuova domanda')
+  // Only start in editing mode if created by current user AND question is empty/default
+  const [isEditing, setIsEditing] = useState(canEdit && (!element.data.question || element.data.question === 'Nuova domanda'))
   const [question, setQuestion] = useState(element.data.question || '')
   const [options, setOptions] = useState(element.data.options || [])
   const [multipleChoice, setMultipleChoice] = useState(element.data.multipleChoice || false)

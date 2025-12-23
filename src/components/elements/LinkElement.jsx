@@ -3,7 +3,8 @@ import { Trash2, Edit2, ExternalLink, Link as LinkIcon } from 'lucide-react'
 import Draggable from 'react-draggable'
 
 function LinkElement({ element, isInstructor, canEdit, canInteract, onUpdate, onDelete }) {
-  const [isEditing, setIsEditing] = useState(!element.data.url)
+  // Only start in editing mode if created by current user AND url is empty
+  const [isEditing, setIsEditing] = useState(canEdit && !element.data.url)
   const [url, setUrl] = useState(element.data.url || '')
   const [title, setTitle] = useState(element.data.title || '')
   const [showPreview, setShowPreview] = useState(false)
