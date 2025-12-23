@@ -17,6 +17,14 @@ function App() {
   // Load boards from Supabase on mount
   useEffect(() => {
     loadBoards()
+    
+    // Check if there's a board parameter in the URL for participant join
+    const urlParams = new URLSearchParams(window.location.search)
+    const boardId = urlParams.get('board')
+    if (boardId) {
+      setCurrentBoardId(boardId)
+      setCurrentView('participant')
+    }
   }, [])
 
   const loadBoards = async () => {
@@ -184,6 +192,13 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       {currentView === 'login' && (
         <Login onLogin={handleLogin} />
+      )}
+      
+      {currentView === 'participant' && (
+        <ParticipantJoin 
+          boardId={currentBoardId}
+          onJoin={handleParticipantJoin}
+        />
       )}
       
       {currentView === 'dashboard' && (
