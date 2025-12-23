@@ -42,9 +42,21 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
               return exists ? prev : [...prev, payload.new]
             })
           } else if (payload.eventType === 'UPDATE') {
-            setElements(prev => prev.map(el => 
-              el.id === payload.new.id ? payload.new : el
-            ))
+            console.log('UPDATE payload.new:', payload.new)
+            setElements(prev => {
+              console.log('Current elements before update:', prev.length)
+              const updated = prev.map(el => {
+                if (el.id === payload.new.id) {
+                  console.log('Found matching element, updating:', el.id)
+                  console.log('Old element:', el)
+                  console.log('New element:', payload.new)
+                  return payload.new
+                }
+                return el
+              })
+              console.log('Elements after update:', updated.length)
+              return updated
+            })
           } else if (payload.eventType === 'DELETE') {
             setElements(prev => prev.filter(el => el.id !== payload.old.id))
           }
