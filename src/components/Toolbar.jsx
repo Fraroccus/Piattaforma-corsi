@@ -298,7 +298,7 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
           </label>
         </div>
 
-        {/* Drawing Tools */}
+        {/* Drawing Tools - TEMPORARILY DISABLED
         <div className="border rounded-lg">
           <button
             onClick={() => togglePanel('drawing')}
@@ -317,7 +317,6 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
           
           {activePanel === 'drawing' && (
             <div className="p-3 border-t space-y-4">
-              {/* Enable/Disable Drawing Mode */}
               <button
                 onClick={() => onDrawingStateChange({ isDrawing: !drawingState.isDrawing })}
                 className={`w-full p-3 rounded-lg font-medium transition-colors ${
@@ -329,7 +328,6 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
                 {drawingState.isDrawing ? '✓ Modalità Disegno Attiva' : 'Attiva Modalità Disegno'}
               </button>
 
-              {/* Tool Selection */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-2">Strumento</label>
                 <div className="flex gap-2">
@@ -358,7 +356,6 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
                 </div>
               </div>
 
-              {/* Color Selection */}
               {drawingState.tool === 'pen' && (
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-2">Colore</label>
@@ -379,7 +376,6 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
                 </div>
               )}
 
-              {/* Thickness Selection */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-2">Spessore</label>
                 <div className="space-y-1">
@@ -400,7 +396,6 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
                 </div>
               </div>
 
-              {/* Clear Drawing */}
               <button
                 onClick={() => onDrawingStateChange({ clearDrawing: true })}
                 className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-700 border border-red-300 rounded hover:bg-red-100 text-sm font-medium"
@@ -411,6 +406,7 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
             </div>
           )}
         </div>
+        */}
 
         {/* Reset Board */}
         <button
