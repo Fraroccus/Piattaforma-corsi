@@ -20,10 +20,11 @@ function Esercizio({ element, isInstructor, canEdit, canInteract, participantNic
 
   // Sync data when element updates from real-time events
   useEffect(() => {
-    if (!isEditing) {
+    // Update if question changed, even if in editing mode
+    if (element.data.question !== question || !isEditing) {
       setQuestion(element.data.question || '')
     }
-  }, [element, isEditing])
+  }, [element.data.question])
 
   const handleDragStop = (e, data) => {
     isDraggingRef.current = false

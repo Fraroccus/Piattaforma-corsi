@@ -21,11 +21,16 @@ function LinkElement({ element, isInstructor, canEdit, canInteract, onUpdate, on
 
   // Sync data when element updates from real-time events
   useEffect(() => {
-    if (!isEditing) {
+    // Update if data changed, even if in editing mode
+    const dataChanged = 
+      element.data.url !== url ||
+      element.data.title !== title
+    
+    if (dataChanged || !isEditing) {
       setUrl(element.data.url || '')
       setTitle(element.data.title || '')
     }
-  }, [element, isEditing])
+  }, [element.data.url, element.data.title])
 
   const handleDragStop = (e, data) => {
     isDraggingRef.current = false

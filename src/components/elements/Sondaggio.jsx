@@ -21,14 +21,19 @@ function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNic
 
   // Sync data when element updates from real-time events
   useEffect(() => {
-    // Always sync votes, but only sync question/options when not editing
-    if (!isEditing) {
+    // Update if data changed, even if in editing mode
+    const dataChanged = 
+      element.data.question !== question ||
+      JSON.stringify(element.data.options) !== JSON.stringify(options) ||
+      element.data.multipleChoice !== multipleChoice
+    
+    if (dataChanged || !isEditing) {
       setQuestion(element.data.question || '')
       setOptions(element.data.options || [])
       setMultipleChoice(element.data.multipleChoice || false)
     }
     // Note: We don't sync votes to local state, we read directly from element.data.votes
-  }, [element, isEditing])
+  }, [element.data.question, element.data.options, element.data.multipleChoice])
 
   const handleDragStop = (e, data) => {
     isDraggingRef.current = false

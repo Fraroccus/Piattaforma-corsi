@@ -27,10 +27,11 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
 
   // Sync text when element updates from real-time events
   useEffect(() => {
-    if (!isEditing) {
+    // Always update if text changed from server (even if we're in "editing" mode but haven't typed yet)
+    if (element.data?.text !== text || !isEditing) {
       setText(element.data?.text || '')
     }
-  }, [element, isEditing])
+  }, [element.data?.text])
 
   const colorScheme = COLORS[element.data.color] || COLORS.yellow
 
