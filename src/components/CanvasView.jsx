@@ -55,7 +55,7 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
   }
 
   return (
-    <div className="relative w-full h-full bg-gray-100">
+    <div className="relative w-full h-full bg-white">
       {/* Zoom Controls */}
       <div className="absolute top-4 right-4 z-10 bg-white rounded-lg shadow-md border flex flex-col">
         <button
