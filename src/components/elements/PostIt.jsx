@@ -21,10 +21,12 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
     setPosition(element.position || { x: 0, y: 0 })
   }, [element.position?.x, element.position?.y])
 
-  // Sync text when element updates from real-time events
+  // Sync text when element updates from real-time events - always update
   useEffect(() => {
-    setText(element.data?.text || '')
-  }, [element.data?.text])
+    if (!isEditing) {
+      setText(element.data?.text || '')
+    }
+  }, [element, isEditing])
 
   const colorScheme = COLORS[element.data.color] || COLORS.yellow
 

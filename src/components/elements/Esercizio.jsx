@@ -18,8 +18,10 @@ function Esercizio({ element, isInstructor, canEdit, canInteract, participantNic
 
   // Sync data when element updates from real-time events
   useEffect(() => {
-    setQuestion(element.data.question || '')
-  }, [element.data.question])
+    if (!isEditing) {
+      setQuestion(element.data.question || '')
+    }
+  }, [element, isEditing])
 
   const handleDragStop = (e, data) => {
     if (isInstructor) {

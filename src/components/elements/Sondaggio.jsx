@@ -19,10 +19,12 @@ function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNic
 
   // Sync data when element updates from real-time events
   useEffect(() => {
-    setQuestion(element.data.question || '')
-    setOptions(element.data.options || [])
-    setMultipleChoice(element.data.multipleChoice || false)
-  }, [element.data])
+    if (!isEditing) {
+      setQuestion(element.data.question || '')
+      setOptions(element.data.options || [])
+      setMultipleChoice(element.data.multipleChoice || false)
+    }
+  }, [element, isEditing])
 
   const handleDragStop = (e, data) => {
     if (isInstructor) {
