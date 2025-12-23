@@ -68,17 +68,20 @@ function App() {
   const handleParticipantJoin = async (boardId, nickname) => {
     if (nickname.trim()) {
       try {
-        // Add participant to database
+        // Upsert participant to database (update if exists, insert if new)
         const { error } = await supabase
           .from('board_participants')
-          .insert([{
+          .upsert({
             board_id: boardId,
             nickname: nickname.trim(),
             joined_at: new Date().toISOString(),
             last_seen: new Date().toISOString()
-          }])
+          }, {
+            onConflict: 'board_id,nickname'
+          })
         
-        if (error && error.code !== '23505') { // Ignore duplicate key error
+        if (error) {
+          console.error('Error joining board:', error)
           throw error
         }
         
@@ -87,7 +90,7 @@ function App() {
         setCurrentView('bacheca')
       } catch (error) {
         console.error('Error joining board:', error)
-        alert('Errore nell\'accesso alla bacheca')
+        alert('Errore nell\'accesso alla bacheca: ' + (error.message || 'Unknown error'))
       }
     }
   }
