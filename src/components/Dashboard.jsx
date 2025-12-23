@@ -137,11 +137,11 @@ function Dashboard({ boards, onCreateBoard, onDeleteBoard, onUpdateBoard, onOpen
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Users size={16} />
-                      <span>{board.participants.length} partecipanti attivi</span>
+                      <span>{board.participants?.length || 0} partecipanti attivi</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Calendar size={16} />
-                      <span>{formatDate(board.createdAt)}</span>
+                      <span>{formatDate(board.createdAt || board.created_at)}</span>
                     </div>
                   </div>
 
