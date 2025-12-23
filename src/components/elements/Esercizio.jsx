@@ -6,12 +6,15 @@ function Esercizio({ element, isInstructor, canEdit, canInteract, participantNic
   const [isEditing, setIsEditing] = useState(!element.data.question || element.data.question === 'Nuova domanda')
   const [question, setQuestion] = useState(element.data.question || '')
   const [responseText, setResponseText] = useState('')
+  const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
 
   const handleDragStop = (e, data) => {
     if (isInstructor) {
+      const newPos = { x: data.x, y: data.y }
+      setPosition(newPos)
       onUpdate({
-        position: { x: data.x, y: data.y }
+        position: newPos
       })
     }
   }
@@ -65,7 +68,7 @@ function Esercizio({ element, isInstructor, canEdit, canInteract, participantNic
   return (
     <Draggable
       nodeRef={nodeRef}
-      position={element.position}
+      position={position}
       onStart={handleDragStart}
       onStop={handleDragStop}
       disabled={!isInstructor}

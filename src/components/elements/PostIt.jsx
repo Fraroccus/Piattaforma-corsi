@@ -13,14 +13,17 @@ const COLORS = {
 function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelete }) {
   const [isEditing, setIsEditing] = useState(!element.data.text)
   const [text, setText] = useState(element.data.text || '')
+  const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
 
   const colorScheme = COLORS[element.data.color] || COLORS.yellow
 
   const handleDragStop = (e, data) => {
     if (canEdit) {
+      const newPos = { x: data.x, y: data.y }
+      setPosition(newPos)
       onUpdate({
-        position: { x: data.x, y: data.y }
+        position: newPos
       })
     }
   }
@@ -47,7 +50,7 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
   return (
     <Draggable
       nodeRef={nodeRef}
-      position={element.position}
+      position={position}
       onStart={handleDragStart}
       onStop={handleDragStop}
       disabled={!isInstructor}

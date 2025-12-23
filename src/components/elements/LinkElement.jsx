@@ -7,12 +7,15 @@ function LinkElement({ element, isInstructor, canEdit, canInteract, onUpdate, on
   const [url, setUrl] = useState(element.data.url || '')
   const [title, setTitle] = useState(element.data.title || '')
   const [showPreview, setShowPreview] = useState(false)
+  const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
 
   const handleDragStop = (e, data) => {
     if (isInstructor) {
+      const newPos = { x: data.x, y: data.y }
+      setPosition(newPos)
       onUpdate({
-        position: { x: data.x, y: data.y }
+        position: newPos
       })
     }
   }
@@ -53,7 +56,7 @@ function LinkElement({ element, isInstructor, canEdit, canInteract, onUpdate, on
   return (
     <Draggable
       nodeRef={nodeRef}
-      position={element.position}
+      position={position}
       onStart={handleDragStart}
       onStop={handleDragStop}
       disabled={!isInstructor}

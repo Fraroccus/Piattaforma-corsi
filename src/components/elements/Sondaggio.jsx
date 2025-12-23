@@ -5,14 +5,17 @@ import Draggable from 'react-draggable'
 function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNickname, onUpdate, onDelete }) {
   const [isEditing, setIsEditing] = useState(!element.data.question || element.data.question === 'Nuova domanda')
   const [question, setQuestion] = useState(element.data.question || '')
-  const [options, setOptions] = useState(element.data.options || [''])
+  const [options, setOptions] = useState(element.data.options || [])
   const [multipleChoice, setMultipleChoice] = useState(element.data.multipleChoice || false)
+  const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
 
   const handleDragStop = (e, data) => {
     if (isInstructor) {
+      const newPos = { x: data.x, y: data.y }
+      setPosition(newPos)
       onUpdate({
-        position: { x: data.x, y: data.y }
+        position: newPos
       })
     }
   }
@@ -102,7 +105,7 @@ function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNic
   return (
     <Draggable
       nodeRef={nodeRef}
-      position={element.position}
+      position={position}
       onStart={handleDragStart}
       onStop={handleDragStop}
       disabled={!isInstructor}
