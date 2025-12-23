@@ -143,13 +143,13 @@ function Toolbar({ board, collapsed, onToggleCollapse, onAddElement, onUpdateCon
               <span className="font-medium">Partecipanti</span>
             </div>
             <span className="text-sm bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full">
-              {board.participants.length}
+              {board.participants?.length || 0}
             </span>
           </button>
           
           {activePanel === 'participants' && (
             <div className="p-2 border-t max-h-48 overflow-y-auto">
-              {board.participants.length === 0 ? (
+              {!board.participants || board.participants.length === 0 ? (
                 <p className="text-sm text-gray-500 text-center py-2">Nessun partecipante</p>
               ) : (
                 <div className="space-y-1">
