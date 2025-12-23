@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, Plus } from 'lucide-react'
 import CanvasView from './CanvasView'
 import Toolbar from './Toolbar'
 import ParticipantToolbar from './ParticipantToolbar'
+import { supabase } from '../lib/supabase'
 
 function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBack }) {
   const [toolbarCollapsed, setToolbarCollapsed] = useState(false)
+  const [elements, setElements] = useState([])
   const [drawingState, setDrawingState] = useState({
     isDrawing: false,
     tool: 'pen',
@@ -13,7 +15,73 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
     thickness: 8
   })
 
-  const handleAddElement = (elementType) => {
+  // Load elements from Supabase on mount and set up real-time subscription
+  useEffect(() => {
+    if (!board?.id) return
+
+    loadElements()
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel(`board_${board.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'board_elements',
+          filter: `board_id=eq.${board.id}`
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setElements(prev => [...prev, payload.new])
+          } else if (payload.eventType === 'UPDATE') {
+            setElements(prev => prev.map(el => 
+              el.id === payload.new.id ? payload.new : el
+            ))
+          } else if (payload.eventType === 'DELETE') {
+            setElements(prev => prev.filter(el => el.id !== payload.old.id))
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'boards',
+          filter: `id=eq.${board.id}`
+        },
+        (payload) => {
+          // Update board drawing data when it changes
+          if (payload.new.drawing_data !== board.drawingData) {
+            onUpdateBoard({ drawingData: payload.new.drawing_data })
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [board?.id])
+
+  const loadElements = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('board_elements')
+        .select('*')
+        .eq('board_id', board.id)
+        .order('created_at', { ascending: true })
+      
+      if (error) throw error
+      setElements(data || [])
+    } catch (error) {
+      console.error('Error loading elements:', error)
+    }
+  }
+
+  const handleAddElement = async (elementType) => {
     // Check permissions for non-instructor users
     if (!isInstructor) {
       if (elementType === 'postit' && !board.config.allowPostIt) {
@@ -35,17 +103,23 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
     }
 
     const newElement = {
-      id: Date.now().toString(),
+      board_id: board.id,
       type: elementType,
       position: { x: 100, y: 100 },
       author: isInstructor ? 'formatore' : participantNickname,
-      createdAt: new Date().toISOString(),
       data: getDefaultElementData(elementType)
     }
 
-    onUpdateBoard({
-      elements: [...board.elements, newElement]
-    })
+    try {
+      const { error } = await supabase
+        .from('board_elements')
+        .insert([newElement])
+      
+      if (error) throw error
+    } catch (error) {
+      console.error('Error adding element:', error)
+      alert('Errore nell\'aggiunta dell\'elemento')
+    }
   }
 
   const getDefaultElementData = (type) => {
@@ -77,18 +151,30 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
     }
   }
 
-  const handleUpdateElement = (elementId, updates) => {
-    onUpdateBoard({
-      elements: board.elements.map(el =>
-        el.id === elementId ? { ...el, ...updates } : el
-      )
-    })
+  const handleUpdateElement = async (elementId, updates) => {
+    try {
+      const { error } = await supabase
+        .from('board_elements')
+        .update(updates)
+        .eq('id', elementId)
+      
+      if (error) throw error
+    } catch (error) {
+      console.error('Error updating element:', error)
+    }
   }
 
-  const handleDeleteElement = (elementId) => {
-    onUpdateBoard({
-      elements: board.elements.filter(el => el.id !== elementId)
-    })
+  const handleDeleteElement = async (elementId) => {
+    try {
+      const { error } = await supabase
+        .from('board_elements')
+        .delete()
+        .eq('id', elementId)
+      
+      if (error) throw error
+    } catch (error) {
+      console.error('Error deleting element:', error)
+    }
   }
 
   const handleUpdateConfig = (configUpdates) => {
@@ -97,18 +183,37 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
     })
   }
 
-  const handleResetBoard = () => {
+  const handleResetBoard = async () => {
     if (confirm('Sei sicuro di voler eliminare tutti gli elementi creati dai corsisti?')) {
-      onUpdateBoard({
-        elements: board.elements.filter(el => el.author === 'formatore')
-      })
+      try {
+        const { error } = await supabase
+          .from('board_elements')
+          .delete()
+          .eq('board_id', board.id)
+          .neq('author', 'formatore')
+        
+        if (error) throw error
+      } catch (error) {
+        console.error('Error resetting board:', error)
+        alert('Errore nel reset della bacheca')
+      }
     }
   }
 
-  const handleUpdateDrawing = (drawingData) => {
-    onUpdateBoard({
-      drawingData
-    })
+  const handleUpdateDrawing = async (drawingData) => {
+    try {
+      const { error } = await supabase
+        .from('boards')
+        .update({ drawing_data: drawingData })
+        .eq('id', board.id)
+      
+      if (error) throw error
+      
+      // Update local state
+      onUpdateBoard({ drawingData: drawingData })
+    } catch (error) {
+      console.error('Error updating drawing:', error)
+    }
   }
 
   const handleDrawingStateChange = (updates) => {
@@ -177,7 +282,7 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
         {/* Canvas */}
         <div className="flex-1 overflow-hidden">
           <CanvasView
-            board={board}
+            board={{ ...board, elements }}
             isInstructor={isInstructor}
             participantNickname={participantNickname}
             onUpdateElement={handleUpdateElement}

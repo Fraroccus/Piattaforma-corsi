@@ -3,32 +3,46 @@ import Dashboard from './components/Dashboard'
 import Bacheca from './components/Bacheca'
 import Login from './components/Login'
 import ParticipantJoin from './components/ParticipantJoin'
+import { supabase } from './lib/supabase'
 
 function App() {
   const [currentView, setCurrentView] = useState('login') // 'login', 'dashboard', 'bacheca', 'participant'
   const [isInstructor, setIsInstructor] = useState(false)
   const [currentBoardId, setCurrentBoardId] = useState(null)
   const [participantNickname, setParticipantNickname] = useState('')
-  
-  // Mock boards data (will be replaced with Supabase later)
-  const [boards, setBoards] = useState([
-    {
-      id: '1',
-      title: 'Bacheca Demo',
-      createdAt: new Date().toISOString(),
-      config: {
-        allowPostIt: true,
-        allowDrawing: false,
-        allowSondaggio: true,
-        allowEsercizio: true,
-        allowLink: false,
-        isLocked: false
-      },
-      elements: [],
-      participants: [],
-      drawingData: null
+  const [boards, setBoards] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  // Load boards from Supabase on mount
+  useEffect(() => {
+    loadBoards()
+  }, [])
+
+  const loadBoards = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('boards')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (error) throw error
+      
+      // Map snake_case to camelCase for consistency
+      const boards = (data || []).map(board => ({
+        ...board,
+        drawingData: board.drawing_data,
+        createdAt: board.created_at
+      }))
+      
+      setBoards(boards)
+    } catch (error) {
+      console.error('Error loading boards:', error)
+      alert('Errore nel caricamento delle bacheche')
+    } finally {
+      setLoading(false)
     }
-  ])
+  }
 
   // Handle login
   const handleLogin = (username, password) => {
@@ -40,59 +54,97 @@ function App() {
   }
 
   // Handle participant join
-  const handleParticipantJoin = (boardId, nickname) => {
+  const handleParticipantJoin = async (boardId, nickname) => {
     if (nickname.trim()) {
-      setCurrentBoardId(boardId)
-      setParticipantNickname(nickname)
-      setCurrentView('bacheca')
-      
-      // Add participant to board
-      setBoards(prev => prev.map(board => 
-        board.id === boardId 
-          ? {
-              ...board,
-              participants: [...board.participants, {
-                nickname,
-                joinedAt: new Date().toISOString(),
-                lastSeen: new Date().toISOString()
-              }]
-            }
-          : board
-      ))
+      try {
+        // Add participant to database
+        const { error } = await supabase
+          .from('board_participants')
+          .insert([{
+            board_id: boardId,
+            nickname: nickname.trim(),
+            joined_at: new Date().toISOString(),
+            last_seen: new Date().toISOString()
+          }])
+        
+        if (error && error.code !== '23505') { // Ignore duplicate key error
+          throw error
+        }
+        
+        setCurrentBoardId(boardId)
+        setParticipantNickname(nickname)
+        setCurrentView('bacheca')
+      } catch (error) {
+        console.error('Error joining board:', error)
+        alert('Errore nell\'accesso alla bacheca')
+      }
     }
   }
 
   // Create new board
-  const handleCreateBoard = () => {
-    const newBoard = {
-      id: Date.now().toString(),
-      title: 'Nuova Bacheca',
-      createdAt: new Date().toISOString(),
-      config: {
-        allowPostIt: true,
-        allowDrawing: false,
-        allowSondaggio: true,
-        allowEsercizio: true,
-        allowLink: false,
-        isLocked: false
-      },
-      elements: [],
-      participants: [],
-      drawingData: null
+  const handleCreateBoard = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('boards')
+        .insert([{
+          title: 'Nuova Bacheca',
+          config: {
+            allowPostIt: true,
+            allowDrawing: false,
+            allowSondaggio: true,
+            allowEsercizio: true,
+            allowLink: false,
+            isLocked: false
+          }
+        }])
+        .select()
+        .single()
+      
+      if (error) throw error
+      await loadBoards() // Reload boards
+    } catch (error) {
+      console.error('Error creating board:', error)
+      alert('Errore nella creazione della bacheca')
+    } finally {
+      setLoading(false)
     }
-    setBoards([...boards, newBoard])
   }
 
   // Delete board
-  const handleDeleteBoard = (boardId) => {
-    setBoards(boards.filter(b => b.id !== boardId))
+  const handleDeleteBoard = async (boardId) => {
+    try {
+      const { error } = await supabase
+        .from('boards')
+        .delete()
+        .eq('id', boardId)
+      
+      if (error) throw error
+      await loadBoards() // Reload boards
+    } catch (error) {
+      console.error('Error deleting board:', error)
+      alert('Errore nell\'eliminazione della bacheca')
+    }
   }
 
   // Update board title or config
-  const handleUpdateBoardMeta = (boardId, updates) => {
-    setBoards(boards.map(b => 
-      b.id === boardId ? { ...b, ...updates } : b
-    ))
+  const handleUpdateBoardMeta = async (boardId, updates) => {
+    try {
+      const { error } = await supabase
+        .from('boards')
+        .update(updates)
+        .eq('id', boardId)
+      
+      if (error) throw error
+      
+      // Update local state
+      setBoards(boards.map(b => 
+        b.id === boardId ? { ...b, ...updates } : b
+      ))
+    } catch (error) {
+      console.error('Error updating board:', error)
+      alert('Errore nell\'aggiornamento della bacheca')
+    }
   }
 
   // Open board (instructor)
@@ -102,12 +154,24 @@ function App() {
   }
 
   // Update board
-  const handleUpdateBoard = (boardId, updates) => {
-    setBoards(prev => prev.map(board => 
-      board.id === boardId 
-        ? { ...board, ...updates }
-        : board
-    ))
+  const handleUpdateBoard = async (boardId, updates) => {
+    try {
+      const { error } = await supabase
+        .from('boards')
+        .update(updates)
+        .eq('id', boardId)
+      
+      if (error) throw error
+      
+      // Update local state
+      setBoards(prev => prev.map(board => 
+        board.id === boardId 
+          ? { ...board, ...updates }
+          : board
+      ))
+    } catch (error) {
+      console.error('Error updating board:', error)
+    }
   }
 
   // Get current board
@@ -120,17 +184,27 @@ function App() {
       )}
       
       {currentView === 'dashboard' && (
-        <Dashboard
-          boards={boards}
-          onCreateBoard={handleCreateBoard}
-          onDeleteBoard={handleDeleteBoard}
-          onUpdateBoard={handleUpdateBoardMeta}
-          onOpenBoard={handleOpenBoard}
-          onLogout={() => {
-            setIsInstructor(false)
-            setCurrentView('login')
-          }}
-        />
+        <>
+          {loading && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+                <p className="mt-4 text-gray-700">Caricamento...</p>
+              </div>
+            </div>
+          )}
+          <Dashboard
+            boards={boards}
+            onCreateBoard={handleCreateBoard}
+            onDeleteBoard={handleDeleteBoard}
+            onUpdateBoard={handleUpdateBoardMeta}
+            onOpenBoard={handleOpenBoard}
+            onLogout={() => {
+              setIsInstructor(false)
+              setCurrentView('login')
+            }}
+          />
+        </>
       )}
       
       {currentView === 'bacheca' && currentBoard && (
