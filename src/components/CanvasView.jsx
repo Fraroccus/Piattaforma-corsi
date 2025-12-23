@@ -34,7 +34,7 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
       key: element.id,
       element,
       isInstructor,
-      canEdit: isInstructor || element.author === participantNickname,
+      canEdit: isInstructor || (!isInstructor && element.author === participantNickname),
       canInteract,
       onUpdate: (updates) => onUpdateElement(element.id, updates),
       onDelete: () => onDeleteElement(element.id)
