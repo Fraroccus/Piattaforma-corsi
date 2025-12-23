@@ -284,6 +284,12 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
   const handleResetBoard = async () => {
     if (confirm('Sei sicuro di voler eliminare tutti gli elementi creati dai corsisti?')) {
       try {
+        console.log('🔄 Resetting board - deleting participant elements')
+        
+        // Get list of elements to delete first
+        const elementsToDelete = elements.filter(el => el.author !== 'formatore')
+        console.log(`Found ${elementsToDelete.length} participant elements to delete`)
+        
         const { error } = await supabase
           .from('board_elements')
           .delete()
@@ -291,6 +297,10 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
           .neq('author', 'formatore')
         
         if (error) throw error
+        
+        console.log('✅ Database delete successful')
+        // Real-time DELETE events should handle UI updates
+        
       } catch (error) {
         console.error('Error resetting board:', error)
         alert('Errore nel reset della bacheca')
