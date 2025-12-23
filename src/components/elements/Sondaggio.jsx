@@ -10,10 +10,11 @@ function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNic
   const [multipleChoice, setMultipleChoice] = useState(element.data.multipleChoice || false)
   const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
+  const isDraggingRef = useRef(false)
 
-  // Sync position when element updates from real-time events
+  // Sync position when element updates from real-time events (but not while dragging)
   useEffect(() => {
-    if (element.position) {
+    if (!isDraggingRef.current && element.position) {
       setPosition(element.position)
     }
   }, [element.position])
@@ -30,7 +31,8 @@ function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNic
   }, [element, isEditing])
 
   const handleDragStop = (e, data) => {
-    if (isInstructor) {
+    isDraggingRef.current = false
+    if (canEdit) {
       const newPos = { x: data.x, y: data.y }
       setPosition(newPos)
       onUpdate({
@@ -40,6 +42,7 @@ function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNic
   }
 
   const handleDragStart = (e) => {
+    isDraggingRef.current = true
     e.stopPropagation()
   }
 

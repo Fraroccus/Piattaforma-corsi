@@ -16,10 +16,13 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
   const [text, setText] = useState(element.data.text || '')
   const [position, setPosition] = useState(element.position || { x: 0, y: 0 })
   const nodeRef = useRef(null)
+  const isDraggingRef = useRef(false)
 
-  // Sync position when element updates from real-time events
+  // Sync position when element updates from real-time events (but not while dragging)
   useEffect(() => {
-    setPosition(element.position || { x: 0, y: 0 })
+    if (!isDraggingRef.current) {
+      setPosition(element.position || { x: 0, y: 0 })
+    }
   }, [element.position?.x, element.position?.y])
 
   // Sync text when element updates from real-time events
@@ -32,6 +35,7 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
   const colorScheme = COLORS[element.data.color] || COLORS.yellow
 
   const handleDragStop = (e, data) => {
+    isDraggingRef.current = false
     if (canEdit) {
       const newPos = { x: data.x, y: data.y }
       setPosition(newPos)
@@ -42,6 +46,7 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
   }
 
   const handleDragStart = (e) => {
+    isDraggingRef.current = true
     e.stopPropagation()
   }
 
