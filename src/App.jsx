@@ -170,14 +170,26 @@ function App() {
   // Update board
   const handleUpdateBoard = async (boardId, updates) => {
     try {
+      // Convert camelCase to snake_case for database
+      const dbUpdates = {}
+      if ('drawingData' in updates) {
+        dbUpdates.drawing_data = updates.drawingData
+      }
+      if ('config' in updates) {
+        dbUpdates.config = updates.config
+      }
+      if ('title' in updates) {
+        dbUpdates.title = updates.title
+      }
+      
       const { error } = await supabase
         .from('boards')
-        .update(updates)
+        .update(dbUpdates)
         .eq('id', boardId)
       
       if (error) throw error
       
-      // Update local state
+      // Update local state with camelCase
       setBoards(prev => prev.map(board => 
         board.id === boardId 
           ? { ...board, ...updates }
