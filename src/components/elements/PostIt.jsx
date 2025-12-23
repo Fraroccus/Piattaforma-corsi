@@ -30,6 +30,10 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
     // Always update if text changed from server (even if we're in "editing" mode but haven't typed yet)
     if (element.data?.text !== text || !isEditing) {
       setText(element.data?.text || '')
+      // If we receive text from server and we're in editing mode, exit editing mode
+      if (element.data?.text && isEditing) {
+        setIsEditing(false)
+      }
     }
   }, [element.data?.text])
 

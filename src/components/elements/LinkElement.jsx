@@ -29,6 +29,10 @@ function LinkElement({ element, isInstructor, canEdit, canInteract, onUpdate, on
     if (dataChanged || !isEditing) {
       setUrl(element.data.url || '')
       setTitle(element.data.title || '')
+      // If we receive saved url and we're in editing mode, exit editing mode
+      if (element.data.url && isEditing) {
+        setIsEditing(false)
+      }
     }
   }, [element.data.url, element.data.title])
 

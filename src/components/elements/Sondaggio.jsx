@@ -31,6 +31,10 @@ function Sondaggio({ element, isInstructor, canEdit, canInteract, participantNic
       setQuestion(element.data.question || '')
       setOptions(element.data.options || [])
       setMultipleChoice(element.data.multipleChoice || false)
+      // If we receive saved data and we're in editing mode, exit editing mode
+      if (element.data.question && element.data.question !== 'Nuova domanda' && isEditing) {
+        setIsEditing(false)
+      }
     }
     // Note: We don't sync votes to local state, we read directly from element.data.votes
   }, [element.data.question, element.data.options, element.data.multipleChoice])

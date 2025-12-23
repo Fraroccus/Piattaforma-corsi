@@ -23,6 +23,10 @@ function Esercizio({ element, isInstructor, canEdit, canInteract, participantNic
     // Update if question changed, even if in editing mode
     if (element.data.question !== question || !isEditing) {
       setQuestion(element.data.question || '')
+      // If we receive saved question and we're in editing mode, exit editing mode
+      if (element.data.question && element.data.question !== 'Nuova domanda' && isEditing) {
+        setIsEditing(false)
+      }
     }
   }, [element.data.question])
 
