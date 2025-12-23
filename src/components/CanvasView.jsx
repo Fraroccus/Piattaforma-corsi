@@ -55,7 +55,7 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
   }
 
   return (
-    <div className="relative w-full h-full bg-white">
+    <div className="relative w-full h-full bg-gray-100">
       {/* Zoom Controls */}
       <div className="absolute top-4 right-4 z-10 bg-white rounded-lg shadow-md border flex flex-col">
         <button
@@ -91,7 +91,7 @@ function CanvasView({ board, isInstructor, participantNickname, onUpdateElement,
       {/* Canvas with Zoom/Pan */}
       <TransformWrapper
         ref={transformRef}
-        initialScale={0.5}
+        initialScale={1}
         minScale={0.1}
         maxScale={2}
         limitToBounds={false}
