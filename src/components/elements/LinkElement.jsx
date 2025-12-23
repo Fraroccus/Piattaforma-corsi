@@ -75,7 +75,7 @@ function LinkElement({ element, isInstructor, canEdit, canInteract, onUpdate, on
       position={position}
       onStart={handleDragStart}
       onStop={handleDragStop}
-      disabled={!isInstructor}
+      disabled={!canEdit}
       bounds="parent"
       cancel=".no-drag"
     >

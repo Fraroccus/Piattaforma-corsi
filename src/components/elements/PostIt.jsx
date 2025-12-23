@@ -66,7 +66,7 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
       position={position}
       onStart={handleDragStart}
       onStop={handleDragStop}
-      disabled={!isInstructor}
+      disabled={!canEdit}
       bounds="parent"
       cancel=".no-drag"
     >
@@ -78,7 +78,7 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
         {/* Header */}
         <div className="p-2 flex items-center justify-between border-b border-gray-300">
           <div className="flex items-center gap-1">
-            {isInstructor && (
+            {canEdit && (
               <div className="cursor-move">
                 <GripVertical size={16} className="text-gray-500" />
               </div>

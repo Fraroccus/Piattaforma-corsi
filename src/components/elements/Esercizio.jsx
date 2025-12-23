@@ -86,7 +86,7 @@ function Esercizio({ element, isInstructor, canEdit, canInteract, participantNic
       position={position}
       onStart={handleDragStart}
       onStop={handleDragStop}
-      disabled={!isInstructor}
+      disabled={!canEdit}
       bounds="parent"
       cancel=".no-drag"
     >
