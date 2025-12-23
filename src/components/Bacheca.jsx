@@ -33,11 +33,11 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
           filter: `board_id=eq.${board.id}`
         },
         (payload) => {
-          console.log('='.repeat(50))
+          console.log('==================================================')
           console.log('👤 USER TYPE:', isInstructor ? 'INSTRUCTOR' : `PARTICIPANT (${participantNickname})`)
           console.log('🔄 EVENT TYPE:', payload.eventType)
-          console.log('📦 PAYLOAD:', JSON.stringify(payload, null, 2))
-          console.log('='.repeat(50))
+          console.log('📦 Element ID:', payload.new?.id || payload.old?.id)
+          console.log('==================================================')
           
           if (payload.eventType === 'INSERT') {
             setElements(prev => {
@@ -52,25 +52,18 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
           } else if (payload.eventType === 'UPDATE') {
             console.log('🔄 UPDATE: Attempting to update element', payload.new.id)
             setElements(prev => {
-              console.log('📋 Current elements count:', prev.length)
               const elementExists = prev.find(el => el.id === payload.new.id)
-              console.log('🔍 Element exists in state?', !!elementExists)
               
-              if (elementExists) {
-                console.log('📝 Old data:', JSON.stringify(elementExists.data, null, 2))
-                console.log('📝 New data:', JSON.stringify(payload.new.data, null, 2))
+              if (!elementExists) {
+                console.log('⚠️ UPDATE for non-existent element - ignoring (likely pre-delete update)')
+                return prev
               }
               
+              console.log('✅ UPDATE: Replacing element', payload.new.id)
               const updated = prev.map(el => {
                 if (el.id === payload.new.id) {
-                  console.log('✅ UPDATE: Replacing element', el.id)
                   return {
-                    id: payload.new.id,
-                    board_id: payload.new.board_id,
-                    type: payload.new.type,
-                    author: payload.new.author,
-                    created_at: payload.new.created_at,
-                    updated_at: payload.new.updated_at,
+                    ...payload.new,
                     data: JSON.parse(JSON.stringify(payload.new.data)),
                     position: JSON.parse(JSON.stringify(payload.new.position))
                   }
@@ -78,15 +71,13 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
                 return el
               })
               
-              console.log('📋 Updated elements count:', updated.length)
               return [...updated]
             })
           } else if (payload.eventType === 'DELETE') {
-            console.log('🗑️ DELETE: Attempting to delete element', payload.old.id)
+            console.log('🗑️ DELETE: Removing element', payload.old.id)
             setElements(prev => {
-              const beforeCount = prev.length
               const filtered = prev.filter(el => el.id !== payload.old.id)
-              console.log(`📋 Elements before: ${beforeCount}, after: ${filtered.length}`)
+              console.log(`📋 Deleted. Elements before: ${prev.length}, after: ${filtered.length}`)
               return filtered
             })
           }
