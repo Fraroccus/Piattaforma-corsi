@@ -33,10 +33,12 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
           filter: `board_id=eq.${board.id}`
         },
         (payload) => {
+          console.log('Real-time event:', payload.eventType, payload)
           if (payload.eventType === 'INSERT') {
             // Check if element already exists (to avoid duplicates from optimistic updates)
             setElements(prev => {
               const exists = prev.some(el => el.id === payload.new.id)
+              console.log('INSERT - exists?', exists, 'new element:', payload.new.id)
               return exists ? prev : [...prev, payload.new]
             })
           } else if (payload.eventType === 'UPDATE') {
@@ -123,6 +125,7 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
       
       if (error) throw error
       
+      console.log('Optimistic insert - added element:', data?.id)
       // Optimistically add to UI (real-time will also add it, but this is faster)
       if (data) {
         setElements(prev => [...prev, data])
