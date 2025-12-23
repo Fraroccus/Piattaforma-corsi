@@ -33,30 +33,16 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
           filter: `board_id=eq.${board.id}`
         },
         (payload) => {
-          console.log('Real-time event:', payload.eventType, payload)
           if (payload.eventType === 'INSERT') {
             // Check if element already exists (to avoid duplicates from optimistic updates)
             setElements(prev => {
               const exists = prev.some(el => el.id === payload.new.id)
-              console.log('INSERT - exists?', exists, 'new element:', payload.new.id)
               return exists ? prev : [...prev, payload.new]
             })
           } else if (payload.eventType === 'UPDATE') {
-            console.log('UPDATE payload.new:', payload.new)
-            setElements(prev => {
-              console.log('Current elements before update:', prev.length)
-              const updated = prev.map(el => {
-                if (el.id === payload.new.id) {
-                  console.log('Found matching element, updating:', el.id)
-                  console.log('Old element:', el)
-                  console.log('New element:', payload.new)
-                  return payload.new
-                }
-                return el
-              })
-              console.log('Elements after update:', updated.length)
-              return updated
-            })
+            setElements(prev => prev.map(el => 
+              el.id === payload.new.id ? payload.new : el
+            ))
           } else if (payload.eventType === 'DELETE') {
             setElements(prev => prev.filter(el => el.id !== payload.old.id))
           }
@@ -78,13 +64,12 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
         }
       )
       .subscribe((status) => {
-        console.log('Subscription status:', status)
         if (status === 'SUBSCRIBED') {
-          console.log('✅ Successfully subscribed to board:', board.id)
+          console.log('✅ Successfully subscribed to board real-time updates')
         } else if (status === 'CHANNEL_ERROR') {
-          console.error('❌ Channel subscription error')
+          console.error('❌ Real-time subscription error')
         } else if (status === 'TIMED_OUT') {
-          console.error('❌ Channel subscription timed out')
+          console.error('❌ Real-time subscription timed out')
         }
       })
 
@@ -146,7 +131,6 @@ function Bacheca({ board, isInstructor, participantNickname, onUpdateBoard, onBa
       
       if (error) throw error
       
-      console.log('Optimistic insert - added element:', data?.id)
       // Optimistically add to UI (real-time will also add it, but this is faster)
       if (data) {
         setElements(prev => [...prev, data])
