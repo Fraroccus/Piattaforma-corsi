@@ -23,6 +23,7 @@ function PostIt({ element, isInstructor, canEdit, canInteract, onUpdate, onDelet
 
   // Sync text when element updates from real-time events - always update
   useEffect(() => {
+    console.log('PostIt useEffect triggered for element:', element.id, 'isEditing:', isEditing, 'text:', element.data?.text)
     if (!isEditing) {
       setText(element.data?.text || '')
     }
