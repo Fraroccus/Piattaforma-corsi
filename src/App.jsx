@@ -247,8 +247,13 @@ function App() {
           participantNickname={participantNickname}
           onUpdateBoard={(updates) => handleUpdateBoard(currentBoardId, updates)}
           onBack={() => {
-            setCurrentBoardId(null)
-            setCurrentView(isInstructor ? 'dashboard' : 'login')
+            if (isInstructor) {
+              setCurrentBoardId(null)
+              setCurrentView('dashboard')
+            } else {
+              // Participant goes back to join page
+              setCurrentView('participant')
+            }
           }}
         />
       )}
